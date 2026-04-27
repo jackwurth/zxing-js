@@ -1,6 +1,5 @@
-
 /*
- * Copyright 2008 ZXing authors
+ * Copyright 2026 ZXing authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,29 +14,28 @@
  * limitations under the License.
  */
 
-// package com.google.zxing.oned;
-
 import { BarcodeFormat } from '@zxing/library';
-import { MultiFormatReader } from '@zxing/library';
-import AbstractBlackBoxSpec from '../../common/AbstractBlackBox';
+import AbstractBlackBoxSpec from '../common/AbstractBlackBox';
+import { MicroQRCodeReader } from '@zxing/library';
 
 /**
- * @author Sean Owen
+ * Black-box test for Micro QR Code decoding.
  */
-
-class RSS14BlackBox2Spec extends AbstractBlackBoxSpec {
+export class MicroQRBlackBox1TestCase extends AbstractBlackBoxSpec {
 
     public constructor() {
-        super('src/test/resources/blackbox/rss14-2', new MultiFormatReader(), BarcodeFormat.RSS_14);
-        this.addTestWithMax(4, 8, 1, 1, 0.0);
-        this.addTestWithMax(3, 8, 0, 1, 180.0);
+        super('src/test/resources/blackbox/microqr-1', new MicroQRCodeReader(), BarcodeFormat.MICRO_QR_CODE);
+        this.addTest(3, 3, 0.0);
+        this.addTest(3, 3, 90.0);
+        this.addTest(3, 3, 180.0);
+        this.addTest(3, 3, 270.0);
     }
+
 }
 
-describe('RSS14BlackBox.2', () => {
+describe('MicroQRBlackBox.1', () => {
     it('testBlackBox', async () => {
-        const test = new RSS14BlackBox2Spec();
+        const test = new MicroQRBlackBox1TestCase();
         await test.testBlackBox();
     });
 });
-
