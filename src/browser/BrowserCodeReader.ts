@@ -1,6 +1,7 @@
 import ArgumentException from '../core/ArgumentException';
 import BinaryBitmap from '../core/BinaryBitmap';
 import ChecksumException from '../core/ChecksumException';
+import GlobalHistogramBinarizer from '../core/common/GlobalHistogramBinarizer';
 import HybridBinarizer from '../core/common/HybridBinarizer';
 import DecodeHintType from '../core/DecodeHintType';
 import FormatException from '../core/FormatException';
@@ -89,6 +90,11 @@ export class BrowserCodeReader {
    * used to unregister that listener when needed.
    */
   protected imageLoadedListener: EventListener;
+
+  /**
+   * Reusable grayscale buffer to avoid per-frame allocation.
+   */
+  private _grayscaleBuffer: Uint8ClampedArray;
 
   /**
    * The stream output from camera.
@@ -908,6 +914,8 @@ export class BrowserCodeReader {
         if (isChecksumOrFormatError || isNotFound) {
           // trying again
           setTimeout(loop, this._timeBetweenDecodingAttempts);
+        } else {
+          console.error('BrowserCodeReader: unexpected error during decode, stopping scan loop:', e);
         }
       }
     };
@@ -922,7 +930,20 @@ export class BrowserCodeReader {
     // get binary bitmap for decode function
     const binaryBitmap = this.createBinaryBitmap(element);
 
-    return this.decodeBitmap(binaryBitmap);
+    try {
+      return this.decodeBitmap(binaryBitmap);
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        // Retry with GlobalHistogramBinarizer as fallback for images where
+        // local thresholding fails but a global threshold works better
+        const canvas = this.getCaptureCanvas(element);
+        const luminanceSource = new HTMLCanvasElementLuminanceSource(canvas, false);
+        const globalBinarizer = new GlobalHistogramBinarizer(luminanceSource);
+        const fallbackBitmap = new BinaryBitmap(globalBinarizer);
+        return this.decodeBitmap(fallbackBitmap);
+      }
+      throw e;
+    }
   }
 
   /**
@@ -944,7 +965,8 @@ export class BrowserCodeReader {
     }
     const canvas = this.getCaptureCanvas(mediaElement);
 
-    const luminanceSource = new HTMLCanvasElementLuminanceSource(canvas, doAutoInvert);
+    const luminanceSource = new HTMLCanvasElementLuminanceSource(canvas, doAutoInvert, this._grayscaleBuffer);
+    this._grayscaleBuffer = luminanceSource.getMatrix();
     const hybridBinarizer = new HybridBinarizer(luminanceSource);
 
     return new BinaryBitmap(hybridBinarizer);

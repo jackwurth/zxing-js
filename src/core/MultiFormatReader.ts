@@ -71,7 +71,9 @@ export default class MultiFormatReader implements Reader {
      */
     /*@Override*/
     public decode(image: BinaryBitmap, hints?: Map<DecodeHintType, any>): Result {
-        this.setHints(hints);
+        if (this.hints !== hints) {
+            this.setHints(hints);
+        }
         return this.decodeInternal(image);
     }
 
@@ -189,8 +191,6 @@ export default class MultiFormatReader implements Reader {
 
         for (const reader of this.readers) {
 
-            // Trying to decode with ${reader} reader.
-
             try {
                 return reader.decode(image, this.hints);
             } catch (ex) {
@@ -198,7 +198,9 @@ export default class MultiFormatReader implements Reader {
                     continue;
                 }
 
-                // Bad Exception.
+                // Log non-reader exceptions for debugging but continue trying other readers
+                console.warn('MultiFormatReader: non-ReaderException from reader:', ex);
+                continue;
             }
         }
 
