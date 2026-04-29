@@ -25,6 +25,7 @@ import MicroQRCodeReader from './microqr/MicroQRCodeReader';
 import AztecReader from './aztec/AztecReader';
 import MultiFormatOneDReader from './oned/MultiFormatOneDReader';
 import DataMatrixReader from './datamatrix/DataMatrixReader';
+import MaxiCodeReader from './maxicode/MaxiCodeReader';
 import NotFoundException from './NotFoundException';
 import PDF417Reader from './pdf417/PDF417Reader';
 import ReaderException from './ReaderException';
@@ -71,7 +72,9 @@ export default class MultiFormatReader implements Reader {
      */
     /*@Override*/
     public decode(image: BinaryBitmap, hints?: Map<DecodeHintType, any>): Result {
-        this.setHints(hints);
+        if (this.hints !== hints) {
+            this.setHints(hints);
+        }
         return this.decodeInternal(image);
     }
 
@@ -142,9 +145,9 @@ export default class MultiFormatReader implements Reader {
             if (formats.includes(BarcodeFormat.PDF_417)) {
                readers.push(new PDF417Reader());
             }
-            // if (formats.includes(BarcodeFormat.MAXICODE)) {
-            //    readers.push(new MaxiCodeReader())
-            // }
+            if (formats.includes(BarcodeFormat.MAXICODE)) {
+               readers.push(new MaxiCodeReader());
+            }
             // At end in "try harder" mode
             if (addOneDReader && tryHarder) {
               readers.push(new MultiFormatOneDReader(hints));
@@ -160,7 +163,7 @@ export default class MultiFormatReader implements Reader {
             readers.push(new DataMatrixReader());
             readers.push(new AztecReader());
             readers.push(new PDF417Reader());
-            // readers.push(new MaxiCodeReader())
+            readers.push(new MaxiCodeReader());
 
             if (tryHarder) {
                readers.push(new MultiFormatOneDReader(hints));
@@ -189,8 +192,6 @@ export default class MultiFormatReader implements Reader {
 
         for (const reader of this.readers) {
 
-            // Trying to decode with ${reader} reader.
-
             try {
                 return reader.decode(image, this.hints);
             } catch (ex) {
@@ -198,7 +199,9 @@ export default class MultiFormatReader implements Reader {
                     continue;
                 }
 
-                // Bad Exception.
+                // Log non-reader exceptions for debugging but continue trying other readers
+                console.warn('MultiFormatReader: non-ReaderException from reader:', ex);
+                continue;
             }
         }
 
