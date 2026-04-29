@@ -25,6 +25,7 @@ import MicroQRCodeReader from './microqr/MicroQRCodeReader';
 import AztecReader from './aztec/AztecReader';
 import MultiFormatOneDReader from './oned/MultiFormatOneDReader';
 import DataMatrixReader from './datamatrix/DataMatrixReader';
+import MaxiCodeReader from './maxicode/MaxiCodeReader';
 import NotFoundException from './NotFoundException';
 import PDF417Reader from './pdf417/PDF417Reader';
 import ReaderException from './ReaderException';
@@ -144,9 +145,9 @@ export default class MultiFormatReader implements Reader {
             if (formats.includes(BarcodeFormat.PDF_417)) {
                readers.push(new PDF417Reader());
             }
-            // if (formats.includes(BarcodeFormat.MAXICODE)) {
-            //    readers.push(new MaxiCodeReader())
-            // }
+            if (formats.includes(BarcodeFormat.MAXICODE)) {
+               readers.push(new MaxiCodeReader());
+            }
             // At end in "try harder" mode
             if (addOneDReader && tryHarder) {
               readers.push(new MultiFormatOneDReader(hints));
@@ -162,7 +163,7 @@ export default class MultiFormatReader implements Reader {
             readers.push(new DataMatrixReader());
             readers.push(new AztecReader());
             readers.push(new PDF417Reader());
-            // readers.push(new MaxiCodeReader())
+            readers.push(new MaxiCodeReader());
 
             if (tryHarder) {
                readers.push(new MultiFormatOneDReader(hints));
