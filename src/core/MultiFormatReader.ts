@@ -195,7 +195,7 @@ export default class MultiFormatReader implements Reader {
             try {
                 return reader.decode(image, this.hints);
             } catch (ex) {
-                if (ex instanceof ReaderException) {
+                if (ex instanceof ReaderException || ex instanceof NotFoundException) {
                     continue;
                 }
 
