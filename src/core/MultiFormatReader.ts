@@ -29,6 +29,7 @@ import MaxiCodeReader from './maxicode/MaxiCodeReader';
 import NotFoundException from './NotFoundException';
 import PDF417Reader from './pdf417/PDF417Reader';
 import ReaderException from './ReaderException';
+import ChecksumException from './ChecksumException';
 
 /*namespace com.google.zxing {*/
 
@@ -195,7 +196,7 @@ export default class MultiFormatReader implements Reader {
             try {
                 return reader.decode(image, this.hints);
             } catch (ex) {
-                if (ex instanceof ReaderException || ex instanceof NotFoundException) {
+                if (ex instanceof ReaderException || ex instanceof NotFoundException || ex instanceof ChecksumException) {
                     continue;
                 }
 
