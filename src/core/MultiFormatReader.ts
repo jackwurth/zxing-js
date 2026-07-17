@@ -30,6 +30,7 @@ import NotFoundException from './NotFoundException';
 import PDF417Reader from './pdf417/PDF417Reader';
 import ReaderException from './ReaderException';
 import ChecksumException from './ChecksumException';
+import FormatException from './FormatException';
 
 /*namespace com.google.zxing {*/
 
@@ -196,12 +197,12 @@ export default class MultiFormatReader implements Reader {
             try {
                 return reader.decode(image, this.hints);
             } catch (ex) {
-                if (ex instanceof ReaderException || ex instanceof NotFoundException || ex instanceof ChecksumException) {
+                if (ex instanceof ReaderException) {
                     continue;
                 }
 
                 // Log non-reader exceptions for debugging but continue trying other readers
-                console.warn('MultiFormatReader: non-ReaderException from reader:', ex);
+                //console.warn('MultiFormatReader: non-ReaderException from reader:', ex);
                 continue;
             }
         }
