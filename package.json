@@ -46,6 +46,7 @@
   "esnext": "./es2015/index.js",
   "unpkg": "./umd/index.min.js",
   "scripts": {
+    "prepare": "npm run build",
     "lint": "eslint \"./src/**/*.ts\"",
     "clean": "shx rm -rf dist output",
     "test": "jest",
