@@ -45,6 +45,9 @@
   "typings": "./esm/index.d.ts",
   "esnext": "./es2015/index.js",
   "unpkg": "./umd/index.min.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "prepare": "npm run build",
     "lint": "eslint \"./src/**/*.ts\"",
